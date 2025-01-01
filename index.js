@@ -59,24 +59,40 @@ app.delete('/api/persons/:id', (request, response) => {
 function getID(){
     let id = 1
     while(persons.map(person => Number(person.id)).includes(id)){
-        id = Math.floor(Math.random() * 1000) + 1
+        id = Math.floor(Math.random() * 1000000) + 1
     }
     return id
 }
 
+//The name or number is missing
+//The name already exists in the phonebook
 app.post('/api/persons', (request, response) => {
     const body = request.body
+    const name = body.name
+    const number = body.number
+    console.log(persons.filter(person => person.name === name).length, name)
+    const nameAlreadyInPhoneBook = (persons.filter(person => person.name === name).length > 0)
 
-    if (!body) {
+    if (!name){
         return response.status(400).json({ 
-          error: 'content missing' 
-        })
-      }
+            error: 'name missing' 
+          })
+    }
+    else if (!number){
+        return response.status(400).json({ 
+            error: 'number missing' 
+          })
+    }
+    else if (nameAlreadyInPhoneBook){
+        return response.status(400).json({ 
+            error: 'name already in phonebook' 
+          })
+    }
 
     const newPerson = { 
         id: getID(),
-        name: body.name,
-        number: body.number
+        name: name,
+        number: number
     }
 
     console.log(request.body)
