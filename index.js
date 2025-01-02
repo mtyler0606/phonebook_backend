@@ -1,4 +1,5 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 let persons = [
@@ -25,6 +26,7 @@ let persons = [
 ]
 
 app.use(express.json())
+app.use(morgan('tiny'))
 
 app.get('/api/persons', (request, response) => {
     response.json(persons)
@@ -70,7 +72,6 @@ app.post('/api/persons', (request, response) => {
     const body = request.body
     const name = body.name
     const number = body.number
-    console.log(persons.filter(person => person.name === name).length, name)
     const nameAlreadyInPhoneBook = (persons.filter(person => person.name === name).length > 0)
 
     if (!name){
@@ -95,7 +96,6 @@ app.post('/api/persons', (request, response) => {
         number: number
     }
 
-    console.log(request.body)
     persons = persons.concat(newPerson)
 
     response.json(newPerson)
