@@ -1,7 +1,10 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+require('dotenv').config()
+const Person = require('./models/people')
 const app = express()
+
 
 let persons = [
     { 
@@ -55,7 +58,10 @@ app.use(morgan(function (tokens, req, res) {
   }))
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
+   
 })
 
 app.get('/info', (request, response) => {
@@ -67,38 +73,23 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(person => person.id === id)
-    if(person){
-      response.json(person)
-    } else {
-        response.status(404).end()
-    }
+    Person.findById(request.params.id).then(person => {
+        response.json(person)
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
+    const id = Number(request.params.id)
     persons = persons.filter(person => person.id !== id)
 
     response.status(204).end()
 })
 
 
-function getID(){
-    let id = 1
-    while(persons.map(person => Number(person.id)).includes(id)){
-        id = Math.floor(Math.random() * 1000000) + 1
-    }
-    return id
-}
-
-//The name or number is missing
-//The name already exists in the phonebook
 app.post('/api/persons', (request, response) => {
     const body = request.body
     const name = body.name
     const number = body.number
-    const nameAlreadyInPhoneBook = (persons.filter(person => person.name === name).length > 0)
 
     if (!name){
         return response.status(400).json({ 
@@ -110,22 +101,17 @@ app.post('/api/persons', (request, response) => {
             error: 'number missing' 
           })
     }
-    else if (nameAlreadyInPhoneBook){
-        return response.status(400).json({ 
-            error: 'name already in phonebook' 
-          })
-    }
 
-    const newPerson = { 
-        id: getID(),
+
+    const person = new Person({ 
         name: name,
         number: number
-    }
+    })
+    console.log(name, number)
 
-    persons = persons.concat(newPerson)
-
-    response.json(newPerson)
-
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
 })
 
 const PORT = 3001
