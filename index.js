@@ -131,6 +131,24 @@ app.post('/api/persons', (request, response) => {
     })
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+    console.log(body.name, body.number, request.params.id)
+    const person = {
+        
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
+})
+
+app.use(errorHandler)
+
 const PORT = 3001
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
