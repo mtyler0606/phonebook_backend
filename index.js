@@ -75,11 +75,11 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    const number = persons.length
     const timestamp = new Date()
-    response.send( 
-        `<p>Phonebook has info for ${number} people</p><p>${timestamp}</p>`
-    )
+    const number = [1, 2]
+    Person.find({}).then(persons => { response.send( 
+        `<p>Phonebook has info for ${persons.length} people</p><p>${timestamp}</p>`
+    )})
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
